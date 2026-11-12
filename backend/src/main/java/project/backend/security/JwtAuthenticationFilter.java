@@ -1,6 +1,5 @@
-package project.backend.config;
-
-import jakarta.servlet.Filter;
+package project.backend.security;
 
 public class JwtAuthenticationFilter{
+
 }
