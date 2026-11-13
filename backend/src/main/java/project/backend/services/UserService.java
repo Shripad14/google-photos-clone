@@ -29,7 +29,7 @@ public class UserService {
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
     }
 
-    public Optional<String> findByEmail(UUID userId){
+    public Optional<String> findEmailById (UUID userId){
         return userRespository.findById(userId).map(User::getEmail);
     }
 
