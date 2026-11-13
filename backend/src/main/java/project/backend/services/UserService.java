@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.backend.dto.UserResponse;
 import project.backend.entity.User;
+import project.backend.exception.UnauthorizedException;
 import project.backend.repository.UserRespository;
 
 import java.util.Optional;
