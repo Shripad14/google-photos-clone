@@ -1,10 +1,12 @@
 package project.backend.services;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.backend.dto.AuthResponse;
+import project.backend.dto.LoginRequest;
 import project.backend.dto.RegisterRequest;
 import project.backend.entity.RefreshToken;
 import project.backend.entity.User;
@@ -56,6 +58,20 @@ public class AuthService {
                 .build();
 
         userRespository.save(user);
+        return buildAuthResponse(user);
+    }
+
+    @Transactional
+    public AuthResponse login(LoginRequest loginRequest){
+        String email = loginRequest.email().trim().toLowerCase();
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, loginRequest.password())
+        );
+
+        User user = userService.getByEmail(email);
+        refreshTokenRepository.deleteByUserId(user.getId());
+
         return buildAuthResponse(user);
     }
 
