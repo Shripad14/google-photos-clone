@@ -94,6 +94,11 @@ public class AuthService {
         return buildAuthResponse(user);
     }
 
+    @Transactional
+    public void logout(String refreshTokenValue) {
+        refreshTokenRepository.findByToken(refreshTokenValue)
+                .ifPresent(refreshTokenRepository::delete);
+    }
 
     private AuthResponse buildAuthResponse(User user){
         String accessToken = jwtService.generateAccessToken(user);
