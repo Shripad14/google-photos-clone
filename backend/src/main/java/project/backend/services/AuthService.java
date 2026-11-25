@@ -10,9 +10,12 @@ import project.backend.dto.LoginRequest;
 import project.backend.dto.RegisterRequest;
 import project.backend.entity.RefreshToken;
 import project.backend.entity.User;
+import project.backend.exception.UnauthorizedException;
 import project.backend.repository.RefreshTokenRepository;
 import project.backend.repository.UserRespository;
 import project.backend.exception.ResourceConflictException;
+
+import java.time.Instant;
 
 
 @Service
@@ -74,6 +77,23 @@ public class AuthService {
 
         return buildAuthResponse(user);
     }
+
+    @Transactional
+    public AuthResponse refresh(String refreshTokenValue){
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
+                .orElseThrow(() -> new UnauthorizedException("Invalid refresh token."));
+
+        if(refreshToken.getExpiresAt().isBefore(Instant.now())){
+            refreshTokenRepository.delete(refreshToken);
+            throw new UnauthorizedException("Refresh token expired.");
+        }
+
+        User user = refreshToken.getUser();
+        refreshTokenRepository.delete(refreshToken);
+
+        return buildAuthResponse(user);
+    }
+
 
     private AuthResponse buildAuthResponse(User user){
         String accessToken = jwtService.generateAccessToken(user);
