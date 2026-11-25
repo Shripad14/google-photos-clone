@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.backend.dto.AuthResponse;
 import project.backend.dto.RegisterRequest;
+import project.backend.entity.RefreshToken;
 import project.backend.entity.User;
 import project.backend.repository.RefreshTokenRepository;
 import project.backend.repository.UserRespository;
@@ -58,5 +59,22 @@ public class AuthService {
         return buildAuthResponse(user);
     }
 
+    private AuthResponse buildAuthResponse(User user){
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshTokenValue = jwtService.generateRefreshTokenValue();
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .user(user)
+                .token(refreshTokenValue)
+                .expiresAt(jwtService.refreshTokenExpiry())
+                .build();
+        refreshTokenRepository.save(refreshToken);
+
+        return new AuthResponse(
+                accessToken,
+                refreshTokenValue,
+                userService.toUserResponse(user)
+        );
+    }
 
 }
